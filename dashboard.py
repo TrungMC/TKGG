@@ -12,19 +12,19 @@ def update_data():
 
 @st.cache_data
 def load_derevative_data():
-    derevative_df = pd.read_csv('C:/Users/trung/PycharmProjects/TKGG/data/KLGDPS.csv')
+    derevative_df = pd.read_csv('./data/KLGDPS.csv')
     return derevative_df
 
 
 @st.cache_data
 def load_stock_data():
-    stock_df = pd.read_csv('C:/Users/trung/PycharmProjects/TKGG/data/KLGDCS.csv')
+    stock_df = pd.read_csv('./data/KLGDCS.csv')
     return stock_df
 
 
 @st.cache_data
 def load_buysell_data():
-    buysell_df = pd.read_csv('C:/Users/trung/PycharmProjects/TKGG/data/KLMB.csv')
+    buysell_df = pd.read_csv('./data/KLMB.csv')
     return buysell_df
 
 
