@@ -34,6 +34,10 @@ dataset = st.container()
 
 stock_container = st.container()
 st.title("Thống kê giao dịch by TrungMC")
+
+if st.button("Update Data"):
+    update_data()
+
 tab1, tab2, tab3 = st.tabs(["PS", "CS", "Hot Stocks"])
 with tab1:
     df = load_derevative_data().sort_values(by=['Date'])
