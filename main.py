@@ -4,6 +4,7 @@
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import os.path
 
+
 import pandas as pd
 import requests
 import gspread
@@ -29,12 +30,22 @@ class EasyStock():
 
     @staticmethod
     def format_date(datestr):
-        return f'2023-{datestr[3:]}-{datestr[0:2]}'
+        if len(datestr)<=5:
+            datestr=datestr+"/2023"
+
+        date = datetime.strptime(datestr, '%d/%m/%Y')
+        return datetime.strftime(date, '%Y-%m-%d')
 
     @staticmethod
     def format_ps_date(datestr):
         date = datetime.strptime(datestr, '%d/%m/%Y')
         return datetime.strftime(date, '%Y-%m-%d')
+
+    @staticmethod
+    def format_all_buy_sell_date(datestr):
+        if len(datestr)<=5:
+            datestr=datestr+"/2023"
+        return datetime.strptime(datestr, '%d/%M/%Y').strftime('%d/%M')
 
     @staticmethod
     def get_last_day(data):
@@ -122,6 +133,7 @@ class EasyStock():
         all_buy_sell = pd.concat([nn_buy_df, nn_sell_df, td_buy_df, td_sell_df])
 
         all_buy_sell.columns = ['Date', 'Code', 'Value', 'Source']
+        all_buy_sell['Date'] = [EasyStock.format_all_buy_sell_date(l) for l in all_buy_sell['Date']]
         all_buy_sell['Value'] = pd.to_numeric(all_buy_sell['Value'])
         all_buy_sell.index.name = 'id'
         if save:
