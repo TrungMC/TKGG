@@ -10,18 +10,14 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
 
+
 class EasyStock():
     @staticmethod
     def read_gsheet_data():
         SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
-
         SAMPLE_RANGE_NAME = 'Class Data!A2:E'
-
         EASY_STOCK_SHEET_ID = '1AQYyd5KP913Qrgy3ZVQSbjYiNQOK-XsulfGn39nRM-o'
         PS_RANGE_NAME = 'Thong Ke!A2:H'
-
-        # credentials = ServiceAccountCredentials.from_json_keyfile_name('token.json', scope)
-
         # connect got Google Sheets
         gc = gspread.service_account(filename="token.json")
         # list all available spreadsheets
@@ -46,7 +42,7 @@ class EasyStock():
         return f'2023_{last_index[3:]}_{last_index[0:2]}'
 
     @staticmethod
-    def get_transaction_df(data):
+    def get_transaction_df(data, save=False):
         trans_df = pd.DataFrame(data[:27]).iloc[1:, :11]
         new_df = trans_df.T
         header = new_df.iloc[0]
@@ -55,17 +51,22 @@ class EasyStock():
         new2_df = new_df
         new2_df.columns = header
         new2_df = new2_df.iloc[1:, :]
-        last_index = new2_df.iloc[-1, 0]
-        last_index = f'2023_{last_index[3:]}_{last_index[0:2]}'
+        for col in new2_df.columns:
 
+            if col and col not in ['id', 'Date', 'Vnindex (%)']:
+                new2_df[col] = new2_df[col].str.replace(',', '', regex=True).astype(int)
+                # new2_df[col] = pd.to_numeric(new2_df[col])
         new2_df['Date'] = [EasyStock.format_date(d) for d in new2_df['Date']]
-        file_name = last_index + "_KLGDCS.csv"
-        new2_df.to_csv("data/" + file_name, sep=',')
-        new2_df.to_csv("data/" + "KLGDCS.csv", sep=',')
+        if save:
+            last_index = new2_df.iloc[-1, 0]
+            last_index = f'2023_{last_index[3:]}_{last_index[0:2]}'
+            file_name = last_index + "_KLGDCS.csv"
+            new2_df.to_csv("data/" + file_name, sep=',')
+            new2_df.to_csv("data/" + "KLGDCS.csv", sep=',')
         return new2_df
 
     @staticmethod
-    def get_derevative_df(data):
+    def get_derevative_df(data, save=False):
         derevative_header = ['Date', 'CN_Long', 'CN_Short', 'TD_Long', 'TD_Short', 'NN_Long', 'NN_Short', 'Total_Long',
                              'Total_Short']
         derevative_df = pd.DataFrame(data[138:163]).iloc[:, 7:16]
@@ -81,9 +82,10 @@ class EasyStock():
         derevative_df['Total_Net'] = derevative_df['Total_Long'] - derevative_df['Total_Short']
         derevative_df['Date'] = [EasyStock.format_date(d) for d in derevative_df['Date']]
         file_name = 'KLGDPS.csv'
-        last_day = EasyStock.get_last_day(data)
-        derevative_df.to_csv("data/" + file_name, sep=',')
-        derevative_df.to_csv("data/" + last_day + "_KLGDPS.csv", sep=',')
+        if save:
+            last_day = EasyStock.get_last_day(data)
+            derevative_df.to_csv("data/" + file_name, sep=',')
+            derevative_df.to_csv("data/" + last_day + "_KLGDPS.csv", sep=',')
         return derevative_df
 
     @staticmethod
@@ -105,8 +107,8 @@ class EasyStock():
         return pd.DataFrame(rows, columns=["Date", "Code", "Value", "Source"])
 
     @staticmethod
-    def get_top_buy_sell(data):
-        last_day =EasyStock.get_last_day(data)
+    def get_top_buy_sell(data, save=False):
+        last_day = EasyStock.get_last_day(data)
         nn_buy = pd.DataFrame(data[30:41]).iloc[:, 1:12].T
         nn_sell = pd.DataFrame(data[41:52]).iloc[:, 1:12].T
         td_buy = pd.DataFrame(data[57:68]).iloc[:, 1:12].T
@@ -120,9 +122,11 @@ class EasyStock():
         all_buy_sell = pd.concat([nn_buy_df, nn_sell_df, td_buy_df, td_sell_df])
 
         all_buy_sell.columns = ['Date', 'Code', 'Value', 'Source']
-        all_buy_sell.index.name='id'
-        all_buy_sell.to_csv("data/" + "KLMB.csv", sep=',')
-        all_buy_sell.to_csv("data/" + last_day + "_BS.csv", sep=',')
+        all_buy_sell['Value'] = pd.to_numeric(all_buy_sell['Value'])
+        all_buy_sell.index.name = 'id'
+        if save:
+            all_buy_sell.to_csv("data/" + "KLMB.csv", sep=',')
+            all_buy_sell.to_csv("data/" + last_day + "_BS.csv", sep=',')
         return all_buy_sell
 
 
@@ -130,8 +134,8 @@ if __name__ == '__main__':
     print("Processing EasyStock Data")
     print("By TrungMC@gmail.com")
     data = EasyStock.read_gsheet_data()
-    ps = EasyStock.get_derevative_df(data)
-    cs = EasyStock.get_transaction_df(data)
-    bs = EasyStock.get_top_buy_sell(data)
+    ps = EasyStock.get_derevative_df(data, save=True)
+    cs = EasyStock.get_transaction_df(data, save=True)
+    bs = EasyStock.get_top_buy_sell(data, save=True)
     print(bs)
     print("Done")

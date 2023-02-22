@@ -4,32 +4,34 @@ import altair as alt
 
 from main import EasyStock
 
+st.set_page_config(page_title="TKGG by TrungMC", layout="wide")
+@st.cache_data
 def update_data():
     data = EasyStock.read_gsheet_data()
     ps = EasyStock.get_derevative_df(data)
     cs = EasyStock.get_transaction_df(data)
     bs = EasyStock.get_top_buy_sell(data)
+    return ps,cs,bs
+# @st.cache_data
+# def load_derevative_data():
+#     derevative_df = pd.read_csv('./data/KLGDPS.csv')
+#     return derevative_df
+#
+#
+# @st.cache_data
+# def load_stock_data():
+#     stock_df = pd.read_csv('./data/KLGDCS.csv')
+#     return stock_df
+#
+#
+# @st.cache_data
+# def load_buysell_data():
+#     buysell_df = pd.read_csv('./data/KLMB.csv')
+#     return buysell_df
 
-@st.cache_data
-def load_derevative_data():
-    derevative_df = pd.read_csv('./data/KLGDPS.csv')
-    return derevative_df
-
-
-@st.cache_data
-def load_stock_data():
-    stock_df = pd.read_csv('./data/KLGDCS.csv')
-    return stock_df
-
-
-@st.cache_data
-def load_buysell_data():
-    buysell_df = pd.read_csv('./data/KLMB.csv')
-    return buysell_df
-
-
+ps,cs,bs=update_data()
 def create_page():
-    st.set_page_config(page_title="TKGG by TrungMC", layout="wide")
+
     header = st.container()
     dataset = st.container()
 
@@ -41,7 +43,7 @@ def create_page():
 
     tab1, tab2, tab3 = st.tabs(["PS", "CS", "Hot Stocks"])
     with tab1:
-        df = load_derevative_data().sort_values(by=['Date'])
+        df = ps.sort_values(by=['Date'])
         df_cumsum = df.sort_values(by=['Date'])
         df_cumsum['CN_Net'] = df["CN_Net"].cumsum()
         df_cumsum['TD_Net'] = df["TD_Net"].cumsum()
@@ -53,12 +55,12 @@ def create_page():
 
             with der1:
                 der1.subheader("Khối lượng giao dịch hàng ngày")
-                der1.line_chart(df, x='Date', y=['CN_Net', 'TD_Net', 'NN_Net'])
+                der1.line_chart(df, x='Date',height=900, y=['CN_Net', 'TD_Net', 'NN_Net'])
             with der2:
                 der2.subheader("Khối lượng giao dịch lũy kế")
-                der2.line_chart(df_cumsum, x='Date', y=['CN_Net', 'TD_Net', 'NN_Net'])
+                der2.line_chart(df_cumsum, x='Date',height=900, y=['CN_Net', 'TD_Net', 'NN_Net'])
     with tab2:
-        cs_df = load_stock_data().sort_values(by=['Date'])
+        cs_df = cs[['Date','NDTNN( Tỷ VND)', 'Cá Nhân TN ( Tỷ VND)', 'Tự Doanh( Tỷ VND)']].sort_values(by=['Date'])
         cs_df_cumsum = cs_df.sort_values(by=['Date'])
         cs_df_cumsum['NDTNN( Tỷ VND)'] = cs_df_cumsum["NDTNN( Tỷ VND)"].cumsum()
         cs_df_cumsum['Cá Nhân TN ( Tỷ VND)'] = cs_df_cumsum["Cá Nhân TN ( Tỷ VND)"].cumsum()
@@ -67,17 +69,17 @@ def create_page():
         stock1, stock2 = tab2.columns(2)
         with stock1:
             st.subheader("KLMB")
-            st.bar_chart(cs_df, x='Date', y=['NDTNN( Tỷ VND)', 'Cá Nhân TN ( Tỷ VND)', 'Tự Doanh( Tỷ VND)'])
+            st.bar_chart(cs_df, x='Date',height=900)
         with stock2:
             st.subheader("KLMB Lũy kế")
-            st.line_chart(cs_df_cumsum, x='Date', y=['NDTNN( Tỷ VND)', 'Cá Nhân TN ( Tỷ VND)', 'Tự Doanh( Tỷ VND)'])
+            st.line_chart(cs_df_cumsum,height=900, x='Date', y=['NDTNN( Tỷ VND)', 'Cá Nhân TN ( Tỷ VND)', 'Tự Doanh( Tỷ VND)'])
 
     with tab3:
-        buysell_df = load_buysell_data()
+        buysell_df = bs
 
         buysell1, buysell2 = tab3.columns(2)
         with buysell1:
-            chart=alt.Chart(buysell_df).mark_bar(
+            chart=alt.Chart(buysell_df,height=900).mark_bar(
                 opacity=1,
             ).encode(
 
