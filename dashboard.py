@@ -7,6 +7,8 @@ from main import EasyStock
 st.set_page_config(page_title="TKGG by TrungMC", layout="wide")
 @st.cache_data
 def update_data():
+    pd.options.mode.chained_assignment = None
+
     data = EasyStock.read_gsheet_data()
     ps = EasyStock.get_derevative_df(data)
     cs = EasyStock.get_transaction_df(data)

@@ -4,7 +4,6 @@
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import os.path
 
-
 import pandas as pd
 import requests
 import gspread
@@ -30,8 +29,8 @@ class EasyStock():
 
     @staticmethod
     def format_date(datestr):
-        if len(datestr)<=5:
-            datestr=datestr+"/2023"
+        if len(datestr) <= 5:
+            datestr = datestr + "/2023"
 
         date = datetime.strptime(datestr, '%d/%m/%Y')
         return datetime.strftime(date, '%Y-%m-%d')
@@ -43,8 +42,8 @@ class EasyStock():
 
     @staticmethod
     def format_all_buy_sell_date(datestr):
-        if len(datestr)<=5:
-            datestr=datestr+"/2023"
+        if len(datestr) <= 5:
+            datestr = datestr + "/2023"
         return datetime.strptime(datestr, '%d/%M/%Y').strftime('%d/%M')
 
     @staticmethod
@@ -145,6 +144,7 @@ class EasyStock():
 if __name__ == '__main__':
     print("Processing EasyStock Data")
     print("By TrungMC@gmail.com")
+    pd.options.mode.chained_assignment = None
     data = EasyStock.read_gsheet_data()
     ps = EasyStock.get_derevative_df(data, save=True)
     cs = EasyStock.get_transaction_df(data, save=True)
