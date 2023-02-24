@@ -78,8 +78,8 @@ class EasyStock():
     @staticmethod
     def get_derevative_df(data, save=False):
         derevative_header = ['Date', 'CN_Long', 'CN_Short', 'TD_Long', 'TD_Short', 'NN_Long', 'NN_Short', 'Total_Long',
-                             'Total_Short']
-        derevative_df = pd.DataFrame(data[138:163]).iloc[:, 7:16]
+                             'Total_Short','Open_Interest']
+        derevative_df = pd.DataFrame(data[138:163]).iloc[:, 7:17]
         derevative_df.columns = derevative_header
         derevative_df.index.name = 'id'
         for col in derevative_header[1:]:
