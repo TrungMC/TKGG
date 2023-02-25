@@ -9,6 +9,7 @@ st.set_page_config(page_title="TKGG by TrungMC", layout="wide")
 
 @st.cache_data
 def update_data():
+
     pd.options.mode.chained_assignment = None
 
     data = EasyStock.read_gsheet_data()
@@ -46,6 +47,7 @@ def create_page():
     st.title("Thống kê giao dịch by TrungMC")
 
     if st.button("Update Data"):
+        st.cache_data.clear()
         update_data()
 
     tab1, tab2, tab3 = st.tabs(["PS", "CS", "Hot Stocks"])
