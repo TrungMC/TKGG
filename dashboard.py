@@ -9,7 +9,6 @@ st.set_page_config(page_title="TKGG by TrungMC", layout="wide")
 
 @st.cache_data
 def update_data():
-
     pd.options.mode.chained_assignment = None
 
     data = EasyStock.read_gsheet_data()
@@ -50,7 +49,7 @@ def create_page():
         st.cache_data.clear()
         update_data()
 
-    tab1, tab2, tab3 = st.tabs(["PS", "CS", "Hot Stocks"])
+    tab1, tab2, tab3, tab4 = st.tabs(["PS", "CS", "Hot Stocks", "Source"])
     with tab1:
         df = ps[['Date', 'CN_Net', 'TD_Net', 'NN_Net']].sort_values(by=['Date'])
         oi_df = ps[['Date', 'Open_Interest']]
@@ -60,7 +59,7 @@ def create_page():
 
             with der1:
                 der1.subheader("Khối lượng giao dịch hàng ngày")
-                ps_tran_chart = alt.Chart(ps1, height=900).mark_line(point=True, strokeWidth=5).encode(
+                ps_tran_chart = alt.Chart(ps1, height=900).mark_bar(point=True, ).encode(
                     x='Date',
                     y='value',
                     color='variable'
@@ -79,9 +78,7 @@ def create_page():
                 )
                 oi_chart = alt.Chart(oi_df).mark_bar(color="#FFAA00").encode(x='Date', y='Open_Interest')
 
-                der2.altair_chart(alt.layer(oi_chart,ps_cum_chart, ), use_container_width=True)
-
-
+                der2.altair_chart(alt.layer(oi_chart, ps_cum_chart, ), use_container_width=True)
 
     with tab2:
         cs_df = cs[['Date', 'NDTNN( Tỷ VND)', 'Cá Nhân TN ( Tỷ VND)', 'Tự Doanh( Tỷ VND)']].sort_values(by=['Date'])
@@ -113,6 +110,13 @@ def create_page():
                 color=alt.Color('Source')
             ).configure_view()
             st.altair_chart(chart)
+    with tab4:
+        with tab4.container():
+            st.write("""
+       
+<iframe style="width:100%;height:900px;border:0;" src="https://docs.google.com/spreadsheets/d/1AQYyd5KP913Qrgy3ZVQSbjYiNQOK-XsulfGn39nRM-o/edit#gid=0"></iframe>
+
+        """,unsafe_allow_html=True)
 
 
 if __name__ == '__main__':
