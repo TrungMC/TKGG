@@ -76,27 +76,28 @@ class EasyStock():
         return new2_df
 
     def to_numeric(text_number):
-            if not text_number:
-                return 0
+        if not text_number:
+            return 0
+        text_number = text_number.replace(',', '')
+        last_group = text_number.split('.')[-1]
+        if not last_group:
+            return 0
 
-            last_group=text_number.split('.')[-1]
-            if not last_group:
-                return 0
+        print(f"Procesing {text_number} with last group {last_group}")
+        if len(last_group) > 0 and len(last_group) < 3:
+            return text_number.split('.', )[0]
+        else:
+            return text_number.replace('.', '')
 
-            print(f"Procesing {text_number} with last group {last_group}")
-            if len(last_group)>0 and len(last_group)<3:
-                return text_number.split('.',)[0]
-            else:
-                return text_number.replace('.','')
     @staticmethod
     def get_derevative_df(data, save=False):
         derevative_header = ['Date', 'CN_Long', 'CN_Short', 'TD_Long', 'TD_Short', 'NN_Long', 'NN_Short', 'Total_Long',
-                             'Total_Short','Open_Interest']
+                             'Total_Short', 'Open_Interest']
         derevative_df = pd.DataFrame(data[138:163]).iloc[:, 7:17]
         derevative_df.columns = derevative_header
         derevative_df.index.name = 'id'
         for col in derevative_header[1:]:
-            #derevative_df[col] = [lambda x:EasyStock.to_numeric(x) for x in derevative_df[col]]
+            # derevative_df[col] = [lambda x:EasyStock.to_numeric(x) for x in derevative_df[col]]
             derevative_df[col] = derevative_df[col].apply(EasyStock.to_numeric)
             derevative_df[col] = pd.to_numeric(derevative_df[col])
 
